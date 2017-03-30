@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	//"fmt"
 	"sync"
 	"time"
 )
@@ -24,7 +24,7 @@ var (
 	WEBDRIVER string = DEFAULT_WEBDRIVER
 )
 
-// NewWebClient creates  
+// NewWebClient creates a WebClient with a Selenium Web Driver
 func NewWebClient(channel chan string, workwg *sync.WaitGroup) WebClient {
 	// FireFox driver without specific version
 	// *** Add gecko driver here if necessary (see notes above.) ***
@@ -34,17 +34,17 @@ func NewWebClient(channel chan string, workwg *sync.WaitGroup) WebClient {
 		panic(err)
 	}
 
-	//wc := WebClient{Queue: channel, workwg: workwg, WebDriver: wd}
-	//return wc
 	return WebClient{Queue: channel, workwg: workwg, WebDriver: wd}
 }
 
+// Run starts WebClient worker
 func (self WebClient) Run() {
 	Ligneous.Info("[WebClient] Starting google searches")
 	self.workwg.Add(1)
 	go self.run()
 }
 
+// run WebClient begins reading channel queue and processing jobs.
 func (self WebClient) run() {
 	// get web driver
 	wd := self.WebDriver
@@ -52,9 +52,9 @@ func (self WebClient) run() {
 	// read items in queue
 	for item := range self.Queue {
 
-		msg := fmt.Sprintf(`[WebClient] Searching "%v"`, item)
-		Ligneous.Debug(msg)
-		//Ligneous.Debug(`[WebClient] Searching "` + item + `"`)
+		//msg := fmt.Sprintf(`[WebClient] Searching "%v"`, item)
+		//Ligneous.Debug(msg)
+		Ligneous.Debug(`[WebClient] Searching for "` + item + `"`)
 
 		// Get google.com
 		wd.Get("https://www.google.com/")

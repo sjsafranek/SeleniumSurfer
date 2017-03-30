@@ -18,7 +18,6 @@ build: fmt get-deps test
 	@GOPATH=${GPATH} go build -o selenium_surfer *.go
 
 get-deps:
-	#@GOPATH=${GPATH} go get github.com/sourcegraph/go-selenium
 	@GOPATH=${GPATH} go get github.com/tebeka/selenium
 	@GOPATH=${GPATH} go get github.com/cihub/seelog
 
