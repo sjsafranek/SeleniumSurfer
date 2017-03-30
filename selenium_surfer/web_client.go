@@ -52,8 +52,6 @@ func (self WebClient) run() {
 	// read items in queue
 	for item := range self.Queue {
 
-		//msg := fmt.Sprintf(`[WebClient] Searching "%v"`, item)
-		//Ligneous.Debug(msg)
 		Ligneous.Debug(`[WebClient] Searching for "` + item + `"`)
 
 		// Get google.com
