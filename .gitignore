@@ -32,3 +32,5 @@ pkg
 bin
 log
 *.log
+chromedriver
+geckodriver

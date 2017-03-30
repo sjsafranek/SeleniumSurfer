@@ -10,8 +10,8 @@ wget https://chromedriver.storage.googleapis.com/2.28/chromedriver_linux64.zip
 
 # unpack files
 unzip chromedriver*.zip
-tar -xvf gechodriver*.tar.gz
+tar -xvf geckodriver*.tar.gz
 
 # clean up
 rm chromedriver*.zip
-rm gechodriver*.tar.gz
+rm geckodriver*.tar.gz
