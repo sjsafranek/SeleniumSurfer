@@ -14,10 +14,12 @@ func newWebClientWorkerPool(number_of_workers int, workwg *sync.WaitGroup) WebCl
 }
 
 func (self WebClientWorkerPool) Init(num int) {
+	Ligneous.Debug(`[WebClientPool] Creating WebClients`)
 	for i := 0; i < num; i++ {
 		self.pool[i] = NewWebClient(self.jobs, self.workwg)
 	}
 
+	Ligneous.Debug(`[WebClientPool] Starting WebClients`)
 	for i := 0; i < num; i++ {
 		self.pool[i].Run()
 	}
@@ -28,5 +30,19 @@ func (self WebClientWorkerPool) Add(message string) {
 }
 
 func (self WebClientWorkerPool) Close() {
-	close(self.jobs)
+	Ligneous.Debug(`[WebClientPool] Closing job channel`)
+	//_, ok := <-self.jobs
+	if nil != self.jobs {
+		close(self.jobs)
+		self.jobs = nil
+	}
+	//close(self.jobs)
+}
+
+func (self WebClientWorkerPool) Shutdown() {
+	self.Close()
+	Ligneous.Debug(`[WebClientPool] Shutting down WebClients`)
+	for i := range self.pool {
+		self.pool[i].Shutdown()
+	}
 }

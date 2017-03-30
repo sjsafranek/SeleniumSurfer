@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"os"
+	"os/signal"
 	"strings"
 	"sync"
 	"time"
@@ -15,19 +16,25 @@ const (
 )
 
 var (
-	CLIENT_NUMBER    int
-	SEARCH_FILE      string
-	WebDriverCluster map[int]WebClientWorker
-	SearchItems      chan string
-	Pool             WebClientWorkerPool
+	CLIENT_NUMBER int
+	SEARCH_FILE   string
+	WCPool WebClientWorkerPool
 )
 
 func init() {
-	// create web driver cluster
-	WebDriverCluster = make(map[int]WebClientWorker)
-
-	// create channel
-	SearchItems = make(chan string, 100)
+	// Graceful shut down
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, os.Interrupt)
+	go func() {
+		for sig := range sigs {
+			// sig is a ^C, handle it
+			Ligneous.Info("Recieved ", sig)
+			Ligneous.Info("Gracefully shutting down")
+			Ligneous.Info("Waiting for WebClients to shutdown...")
+			WCPool.Shutdown()
+			os.Exit(0)
+		}
+	}()
 }
 
 func shutDown() {
@@ -52,8 +59,7 @@ func getSearchTerms() {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		//SearchItems <- scanner.Text()
-		Pool.Add(scanner.Text())
+		WCPool.Add(scanner.Text())
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -72,7 +78,7 @@ func main() {
 	flag.Parse()
 
 	// check for valid web driver option
-	if !strings.Contains("firefox chrome", WEBDRIVER) {
+	if !strings.Contains("firefox chrome htmlunit", WEBDRIVER) {
 		Ligneous.Error("Driver not supported")
 		shutDown()
 	}
@@ -80,22 +86,11 @@ func main() {
 	// create work group for workers
 	var workwg sync.WaitGroup
 
-	/*
-		// create web clients
-		for i := 0; i < CLIENT_NUMBER; i++ {
-			WebDriverCluster[i] = NewWebClient(SearchItems, &workwg)
-		}
-
-		for i := 0; i < CLIENT_NUMBER; i++ {
-			WebDriverCluster[i].Run()
-		}
-	*/
-	Pool = newWebClientWorkerPool(CLIENT_NUMBER, &workwg)
+	WCPool = newWebClientWorkerPool(CLIENT_NUMBER, &workwg)
 
 	getSearchTerms()
 
-	Pool.Close()
-	//close(SearchItems)
+	WCPool.Close()
 
 	// wait for work groups to complete
 	workwg.Wait()

@@ -78,6 +78,10 @@ func (self WebClientWorker) finish() {
 	self.workwg.Done()
 }
 
+func (self WebClientWorker) Shutdown() {
+	self.finish()
+}
+
 /*
 	// Get simple playground interface
 	wd.Get("http://play.golang.org/?simple=1")
