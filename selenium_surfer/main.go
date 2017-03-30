@@ -79,7 +79,7 @@ func main() {
 	flag.Parse()
 
 	// check for valid web driver option
-	if !strings.Contains("firefox chrome htmlunit", WEBDRIVER) {
+	if !strings.Contains("firefox chrome htmlunit htmlunitdriver HTMLUnit phantomjs", WEBDRIVER) {
 		Ligneous.Error("Driver not supported")
 		shutDown()
 	}

@@ -27,6 +27,7 @@ _testmain.go
 *.jar
 *.zip
 *.tar.gz
+*.tar.bz2
 src
 pkg
 bin
@@ -34,4 +35,5 @@ log
 *.log
 chromedriver
 geckodriver
+phantomjs
 SeleniumSurfer
