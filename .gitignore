@@ -34,3 +34,4 @@ log
 *.log
 chromedriver
 geckodriver
+selenium_surfer
