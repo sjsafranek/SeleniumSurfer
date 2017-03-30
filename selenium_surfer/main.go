@@ -18,7 +18,7 @@ const (
 var (
 	CLIENT_NUMBER int
 	SEARCH_FILE   string
-	WCPool WebClientWorkerPool
+	WCPool        WebClientWorkerPool
 )
 
 func init() {

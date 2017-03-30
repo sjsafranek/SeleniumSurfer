@@ -69,17 +69,13 @@ func (self WebClientWorker) run() {
 	// pause
 	time.Sleep(2 * time.Second)
 
-	self.finish()
-}
-
-func (self WebClientWorker) finish() {
-	Ligneous.Info("[WebClient] Shutting down")
-	self.WebDriver.Quit()
-	self.workwg.Done()
+	self.Shutdown()
 }
 
 func (self WebClientWorker) Shutdown() {
-	self.finish()
+	Ligneous.Info("[WebClient] Shutting down")
+	self.WebDriver.Quit()
+	self.workwg.Done()
 }
 
 /*

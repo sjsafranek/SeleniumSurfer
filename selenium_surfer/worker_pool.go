@@ -31,16 +31,10 @@ func (self WebClientWorkerPool) Add(message string) {
 
 func (self WebClientWorkerPool) Close() {
 	Ligneous.Debug(`[WebClientPool] Closing job channel`)
-	//_, ok := <-self.jobs
-	if nil != self.jobs {
-		close(self.jobs)
-		self.jobs = nil
-	}
-	//close(self.jobs)
+	close(self.jobs)
 }
 
 func (self WebClientWorkerPool) Shutdown() {
-	self.Close()
 	Ligneous.Debug(`[WebClientPool] Shutting down WebClients`)
 	for i := range self.pool {
 		self.pool[i].Shutdown()
