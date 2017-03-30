@@ -17,13 +17,14 @@ const (
 var (
 	CLIENT_NUMBER    int
 	SEARCH_FILE      string
-	WebDriverCluster map[int]WebClient
+	WebDriverCluster map[int]WebClientWorker
 	SearchItems      chan string
+	Pool             WebClientWorkerPool
 )
 
 func init() {
 	// create web driver cluster
-	WebDriverCluster = make(map[int]WebClient)
+	WebDriverCluster = make(map[int]WebClientWorker)
 
 	// create channel
 	SearchItems = make(chan string, 100)
@@ -51,7 +52,8 @@ func getSearchTerms() {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		SearchItems <- scanner.Text()
+		//SearchItems <- scanner.Text()
+		Pool.Add(scanner.Text())
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -78,17 +80,22 @@ func main() {
 	// create work group for workers
 	var workwg sync.WaitGroup
 
-	// create web clients
-	for i := 0; i < CLIENT_NUMBER; i++ {
-		WebDriverCluster[i] = NewWebClient(SearchItems, &workwg)
-	}
+	/*
+		// create web clients
+		for i := 0; i < CLIENT_NUMBER; i++ {
+			WebDriverCluster[i] = NewWebClient(SearchItems, &workwg)
+		}
 
-	for i := 0; i < CLIENT_NUMBER; i++ {
-		WebDriverCluster[i].Run()
-	}
+		for i := 0; i < CLIENT_NUMBER; i++ {
+			WebDriverCluster[i].Run()
+		}
+	*/
+	Pool = newWebClientWorkerPool(CLIENT_NUMBER, &workwg)
 
 	getSearchTerms()
-	close(SearchItems)
+
+	Pool.Close()
+	//close(SearchItems)
 
 	// wait for work groups to complete
 	workwg.Wait()

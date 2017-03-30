@@ -25,7 +25,7 @@ var (
 )
 
 // NewWebClient creates a WebClient with a Selenium Web Driver
-func NewWebClient(channel chan string, workwg *sync.WaitGroup) WebClient {
+func NewWebClient(channel chan string, workwg *sync.WaitGroup) WebClientWorker {
 	// FireFox driver without specific version
 	// *** Add gecko driver here if necessary (see notes above.) ***
 	caps := selenium.Capabilities{"browserName": WEBDRIVER}
@@ -34,18 +34,18 @@ func NewWebClient(channel chan string, workwg *sync.WaitGroup) WebClient {
 		panic(err)
 	}
 
-	return WebClient{Queue: channel, workwg: workwg, WebDriver: wd}
+	return WebClientWorker{Queue: channel, workwg: workwg, WebDriver: wd}
 }
 
 // Run starts WebClient worker
-func (self WebClient) Run() {
+func (self WebClientWorker) Run() {
 	Ligneous.Info("[WebClient] Starting google searches")
 	self.workwg.Add(1)
 	go self.run()
 }
 
 // run WebClient begins reading channel queue and processing jobs.
-func (self WebClient) run() {
+func (self WebClientWorker) run() {
 	// get web driver
 	wd := self.WebDriver
 
@@ -72,7 +72,7 @@ func (self WebClient) run() {
 	self.finish()
 }
 
-func (self WebClient) finish() {
+func (self WebClientWorker) finish() {
 	Ligneous.Info("[WebClient] Shutting down")
 	self.WebDriver.Quit()
 	self.workwg.Done()
