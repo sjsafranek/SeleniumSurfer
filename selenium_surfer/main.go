@@ -39,6 +39,7 @@ func init() {
 
 func shutDown() {
 	time.Sleep(time.Millisecond * 100)
+	WCPool.Shutdown()
 	os.Exit(1)
 }
 
