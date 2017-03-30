@@ -23,7 +23,12 @@ _testmain.go
 *.test
 *.prof
 
-# Project Files
+# Project Files and Directories
 *.jar
 *.zip
 *.tar.gz
+src
+pkg
+bin
+log
+*.log
