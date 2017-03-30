@@ -1,5 +1,6 @@
 package main
 
+/*
 type SurferError struct {
 	What string
 }
@@ -11,3 +12,4 @@ func (error SurferError) Error() string {
 func newSurferError(message string) SurferError {
 	return SurferError{message}
 }
+*/
