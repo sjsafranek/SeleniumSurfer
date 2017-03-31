@@ -33,7 +33,7 @@ func init() {
 			Ligneous.Info("Gracefully shutting down")
 			Ligneous.Info("Waiting for WebClients to shutdown...")
 			WCPool.Shutdown()
-			SyncDatabase()
+			DB.Sync()
 			os.Exit(0)
 		}
 	}()
@@ -62,7 +62,7 @@ func getSearchTerms() {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		Tasks.Add(scanner.Text(), 120)
+		DB.Add(scanner.Text(), 120)
 		WCPool.Add(scanner.Text())
 	}
 
@@ -76,6 +76,7 @@ func main() {
 
 	// command line args
 	flag.StringVar(&SEARCH_FILE, "f", DEFAULT_SEARCH_FILE, "search file")
+	flag.StringVar(&DATABASE_FILE, "d", DEFAULT_DATABASE_FILE, "database file")
 	flag.StringVar(&WEBDRIVER, "b", DEFAULT_WEBDRIVER, "web driver")
 	flag.IntVar(&CLIENT_NUMBER, "n", DEFAULT_CLIENT_NUMBER, "number of clients")
 	flag.StringVar(&SELENIUM_SERVER, "u", DEFAULT_SELENIUM_SERVER, "selenium server url")
@@ -92,6 +93,8 @@ func main() {
 	// create work group for workers
 	var workwg sync.WaitGroup
 
+	InitDatabase()
+
 	WCPool = newWebClientWorkerPool(CLIENT_NUMBER, &workwg)
 
 	getSearchTerms()
@@ -106,5 +109,5 @@ func main() {
 	// wait for work groups to complete
 	workwg.Wait()
 
-	SyncDatabase()
+	DB.Sync()
 }

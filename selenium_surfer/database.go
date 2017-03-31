@@ -1,7 +1,5 @@
 package main
 
-//import "os"
-import "fmt"
 import "github.com/schollz/jsonstore"
 
 const (
@@ -9,56 +7,45 @@ const (
 )
 
 var (
-	DatabaseFile string = DEFAULT_DATABASE_FILE
-	Database     jsonstore.JSONStore
-	Tasks        Jobs
+	DATABASE_FILE string = DEFAULT_DATABASE_FILE
+	DB            Database
 )
 
-type Jobs struct {
-	Jobs map[string]int
+type Database struct {
+	Store *jsonstore.JSONStore
+	Data  map[string]int
 }
 
-func (self Jobs) Add(message string, minutes int) {
-	Ligneous.Debug("[Database] Adding task ", message, " ", minutes)
-	self.Jobs[message] = minutes
+func (self Database) Add(message string, minutes int) {
+	Ligneous.Debug("[Database] Add item ", message, " ", minutes)
+	self.Data[message] = minutes
+	self.Sync()
 }
 
-func SyncDatabase() {
-	Ligneous.Info("[Database] Sync database")
-
-	Database.Set("tasks", &Tasks)
+func (self Database) Sync() {
+	//Ligneous.Info("[Database] Sync database")
+	self.Store.Set("tasks", &self.Data)
 
 	// Saving will automatically gzip if .gz is provided
-	if err := jsonstore.Save(&Database, DatabaseFile); err != nil {
+	if err := jsonstore.Save(self.Store, DATABASE_FILE); err != nil {
 		panic(err)
 	}
 }
 
-func init() {
+func InitDatabase() {
 
-	Tasks = Jobs{make(map[string]int)}
-
-	//Database = new(jsonstore.JSONStore)
-	Database, err := jsonstore.Open(DatabaseFile)
+	store, err := jsonstore.Open(DATABASE_FILE)
 	if nil != err {
-		Database = new(jsonstore.JSONStore)
+		store = new(jsonstore.JSONStore)
 	}
 
-	err = Database.Get("tasks", &Tasks)
+	DB = Database{Store: store, Data: make(map[string]int)}
+
+	err = DB.Store.Get("tasks", &DB.Data)
 	if nil != err {
-		// Saving will automatically gzip if .gz is provided
-		if err = jsonstore.Save(Database, DatabaseFile); err != nil {
-			panic(err)
-		}
+		DB.Sync()
 	}
 
-	fmt.Printf("%v\n", Tasks)
+	Ligneous.Trace(DB.Data)
 
-	//	Tasks.Add(fmt.Sprintf("%v", time.Now()), 1)
-
-	//	os.Exit(0)
-
-	//data := Database.GetAll("*")
-	//fmt.Printf("%v\n", data)
-	//Ligneous.Info("job")
 }
