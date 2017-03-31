@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 )
@@ -63,7 +64,7 @@ func (self WebClientWorker) run() {
 }
 
 func (self WebClientWorker) VisitWebPage(url_string string) {
-	Ligneous.Debug(`[WebClient] Visit web page "` + url_string + `"`)
+	Ligneous.Debug(`[WebClient] `, self.WebDriver.SessionID(), ` Visit web page "`+url_string+`"`)
 
 	// Get google.com
 	self.WebDriver.Get(url_string)
@@ -73,23 +74,50 @@ func (self WebClientWorker) VisitWebPage(url_string string) {
 }
 
 func (self WebClientWorker) GoogleSearch(search_term string) {
-	Ligneous.Debug(`[WebClient] Google Search "` + search_term + `"`)
+	Ligneous.Debug(`[WebClient] `, self.WebDriver.SessionID(), ` Google Search "`+search_term+`"`)
+
+	// NewSession() (string, error)
+
+	//status, err := self.WebDriver.Status()
+	//if nil != err {
+	//	Ligneous.Error("[WebClient]", err)
+	//}
 
 	// Get google.com
 	self.WebDriver.Get("https://www.google.com/")
 
 	// find search input
-	elem, _ := self.WebDriver.FindElement(selenium.ByCSSSelector, `input[name="q"]`)
-	elem.Clear()
-	elem.SendKeys(search_term + selenium.EnterKey)
+	elem, err := self.WebDriver.FindElement(selenium.ByCSSSelector, `input[name="q"]`)
+	if nil != err {
+		if strings.Contains(err.Error(), "not reachable") {
+			self.Queue <- search_term
+			self.restoreSession()
+		} else {
+			Ligneous.Error("[WebClient] ", self.WebDriver.SessionID(), " ", err)
+		}
+	} else {
+		elem.Clear()
+		elem.SendKeys(search_term + selenium.EnterKey)
+	}
 
 	// pause
 	time.Sleep(2 * time.Second)
 }
 
+func (self WebClientWorker) restoreSession() {
+	_, err := self.WebDriver.NewSession()
+	if nil != err {
+		Ligneous.Error("[WebClient] ", self.WebDriver.SessionID(), " ", err)
+	}
+	//Ligneous.Info("[WebClient] ", self.WebDriver.SessionID(), " ", session)
+}
+
 func (self WebClientWorker) Shutdown() {
-	Ligneous.Info("[WebClient] Shutting down")
-	self.WebDriver.Quit()
+	Ligneous.Info("[WebClient] ", self.WebDriver.SessionID(), " Shutting down")
+	err := self.WebDriver.Quit()
+	if nil != err {
+		Ligneous.Error("[WebClient] ", self.WebDriver.SessionID(), " ", err)
+	}
 	self.workwg.Done()
 }
 
