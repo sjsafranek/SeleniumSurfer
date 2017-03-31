@@ -1,10 +1,19 @@
 #!/bin/bash
 
 java -jar selenium-server-standalone-3.3.1.jar -role hub &
+
 sleep 5
+
 java -jar selenium-server-standalone-3.3.1.jar -role node -hub http://localhost:4444/grid/register -port 6666 &
 
+# ./phantomjs --webdriver=8080 --webdriver-selenium-grid-hub=http://localhost:4444
+
+#sleep 5
+#java -jar ios-server-0.6.5-jar-with-dependencies.jar \
+#    -hub http://localhost:4444/grid/register \
+#    -proxy org.uiautomation.ios.grid.IOSRemoteProxy \
+#    -port 3333 &
 
 
-# java -jar selenium-server-standalone-3.3.1.jar -role hub
-# phantomjs --webdriver=8080 --webdriver-selenium-grid-hub=http://127.0.0.1:4444
+#java -cp ios-grid-0.6.6-SNAPSHOT.jar:selenium-server-standalone.jar \
+#        org.openqa.grid.selenium.GridLauncher -role hub
