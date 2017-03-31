@@ -38,10 +38,10 @@ func NewUUID4() (string, error) {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:]), nil
 }
 
-// NewAPIKey generates and returns an apikey of desired length
+// NewWorkerKey generates and returns an apikey of desired length
 // @param int length of apikey
 // @returns string
-func NewAPIKey(n int) string {
+func NewWorkerKey(n int) string {
 	s := ""
 	for i := 1; i <= n; i++ {
 		s += string(_letters[rand.Intn(len(_letters))])

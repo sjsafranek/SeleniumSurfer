@@ -35,10 +35,11 @@ func NewWebClient(channel chan string, workwg *sync.WaitGroup) WebClientWorker {
 		panic(err)
 	}
 
-	worker_uuid, err := NewUUID4()
-	if err != nil {
-		panic(err)
-	}
+	//worker_uuid, err := NewUUID4()
+	//if err != nil {
+	//	panic(err)
+	//}
+	worker_uuid := NewWorkerKey(12)
 	return WebClientWorker{Queue: channel, workwg: workwg, WebDriver: wd, Uuid: worker_uuid}
 }
 
