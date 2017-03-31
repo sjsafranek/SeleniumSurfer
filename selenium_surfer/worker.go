@@ -1,7 +1,7 @@
 package main
 
 import (
-	//"fmt"
+	"net/url"
 	"sync"
 	"time"
 )
@@ -46,30 +46,45 @@ func (self WebClientWorker) Run() {
 
 // run WebClient begins reading channel queue and processing jobs.
 func (self WebClientWorker) run() {
-	// get web driver
-	wd := self.WebDriver
-
 	// read items in queue
 	for item := range self.Queue {
-
-		Ligneous.Debug(`[WebClient] Searching for "` + item + `"`)
-
-		// Get google.com
-		wd.Get("https://www.google.com/")
-
-		// find search input
-		elem, _ := wd.FindElement(selenium.ByCSSSelector, `input[name="q"]`)
-		elem.Clear()
-		elem.SendKeys(item + selenium.EnterKey)
-
-		// pause
-		time.Sleep(5 * time.Second)
+		_, err := url.ParseRequestURI(item)
+		if nil != err {
+			self.GoogleSearch(item)
+		} else {
+			self.VisitWebPage(item)
+		}
 	}
 
 	// pause
 	time.Sleep(2 * time.Second)
 
 	self.Shutdown()
+}
+
+func (self WebClientWorker) VisitWebPage(url_string string) {
+	Ligneous.Debug(`[WebClient] Visit web page "` + url_string + `"`)
+
+	// Get google.com
+	self.WebDriver.Get(url_string)
+
+	// pause
+	time.Sleep(2 * time.Second)
+}
+
+func (self WebClientWorker) GoogleSearch(search_term string) {
+	Ligneous.Debug(`[WebClient] Google Search "` + search_term + `"`)
+
+	// Get google.com
+	self.WebDriver.Get("https://www.google.com/")
+
+	// find search input
+	elem, _ := self.WebDriver.FindElement(selenium.ByCSSSelector, `input[name="q"]`)
+	elem.Clear()
+	elem.SendKeys(search_term + selenium.EnterKey)
+
+	// pause
+	time.Sleep(2 * time.Second)
 }
 
 func (self WebClientWorker) Shutdown() {

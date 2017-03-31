@@ -18,6 +18,7 @@ const (
 var (
 	CLIENT_NUMBER int
 	SEARCH_FILE   string
+	SERVER_MODE   bool = false
 	WCPool        WebClientWorkerPool
 )
 
@@ -75,7 +76,9 @@ func main() {
 	flag.StringVar(&SEARCH_FILE, "f", DEFAULT_SEARCH_FILE, "search file")
 	flag.StringVar(&WEBDRIVER, "b", DEFAULT_WEBDRIVER, "web driver")
 	flag.IntVar(&CLIENT_NUMBER, "n", DEFAULT_CLIENT_NUMBER, "number of clients")
-	flag.StringVar(&SELENIUM_SERVER, "s", DEFAULT_SELENIUM_SERVER, "selenium server url")
+	flag.StringVar(&SELENIUM_SERVER, "u", DEFAULT_SELENIUM_SERVER, "selenium server url")
+	flag.BoolVar(&SERVER_MODE, "s", false, "server mode")
+	flag.IntVar(&HTTP_PORT, "p", HTTP_DEFAULT_PORT, "http server port")
 	flag.Parse()
 
 	// check for valid web driver option
@@ -90,6 +93,11 @@ func main() {
 	WCPool = newWebClientWorkerPool(CLIENT_NUMBER, &workwg)
 
 	getSearchTerms()
+
+	if SERVER_MODE {
+		httpServer := HttpServer{Port: HTTP_PORT}
+		httpServer.Start()
+	}
 
 	WCPool.Close()
 
