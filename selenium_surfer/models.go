@@ -11,6 +11,7 @@ type WebClientWorker struct {
 	id        int
 	workwg    *sync.WaitGroup
 	WebDriver selenium.WebDriver
+	Uuid      string
 }
 
 type WebClientWorkerPool struct {
