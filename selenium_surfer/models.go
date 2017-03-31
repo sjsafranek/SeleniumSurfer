@@ -18,3 +18,9 @@ type WebClientWorkerPool struct {
 	jobs   chan string
 	workwg *sync.WaitGroup
 }
+
+type Task struct {
+	Url     string `json:"url"`
+	Search  string `json:"search"`
+	Minutes int    `json:"minutes"`
+}

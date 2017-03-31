@@ -1,6 +1,9 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"runtime"
 	"time"
@@ -14,7 +17,8 @@ func init() {
 
 // IndexHandler returns html page containing api docs
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "http://sjsafranek.github.io/gospatial/", 200)
+	//http.Redirect(w, r, "Welcome to Selenium Surfer dudes!", 200)
+	fmt.Fprintf(w, "Welcome to Selenium Surfer dudes!")
 	return
 }
 
@@ -38,4 +42,37 @@ func PingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	SendJsonResponse(w, r, js)
+}
+
+// NewTaskHandler
+func NewTaskHandler(w http.ResponseWriter, r *http.Request) {
+	// Get request body
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		message := fmt.Sprintf(" %v %v [500]", r.Method, r.URL.Path)
+		Ligneous.Critical("[HttpServer]", r.RemoteAddr, message)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	r.Body.Close()
+
+	// Unmarshal feature
+	var task Task
+	err = json.Unmarshal(body, &task)
+	if err != nil {
+		message := fmt.Sprintf(" %v %v [400]", r.Method, r.URL.Path)
+		Ligneous.Critical("[HttpServer]", r.RemoteAddr, message)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	DB.Add(task.Search, task.Minutes)
+	WCPool.Add(task.Search)
+
+	js, err := MarshalJsonFromString(w, r, `{"status":"ok"}`)
+	if err != nil {
+		return
+	}
+	SendJsonResponse(w, r, js)
+
 }

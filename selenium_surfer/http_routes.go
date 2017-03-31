@@ -14,10 +14,12 @@ type apiRoute struct {
 type apiRoutes []apiRoute
 
 var routes = apiRoutes{
-
 	// Web Client apiRoutes
 	apiRoute{"Index", "GET", "/", IndexHandler},
 
 	// Health check
 	apiRoute{"Ping", "GET", "/ping", PingHandler},
+
+	// Add task
+	apiRoute{"AddTask", "POST", "/api/v1/task", NewTaskHandler},
 }

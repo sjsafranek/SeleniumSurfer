@@ -42,6 +42,7 @@ func init() {
 func shutDown() {
 	time.Sleep(time.Millisecond * 100)
 	WCPool.Shutdown()
+	DB.Sync()
 	os.Exit(1)
 }
 
@@ -62,7 +63,7 @@ func getSearchTerms() {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		DB.Add(scanner.Text(), 120)
+		//DB.Add(scanner.Text(), 120)
 		WCPool.Add(scanner.Text())
 	}
 
@@ -97,11 +98,14 @@ func main() {
 
 	WCPool = newWebClientWorkerPool(CLIENT_NUMBER, &workwg)
 
-	getSearchTerms()
-
 	if SERVER_MODE {
+		for i := range DB.Data {
+			WCPool.Add(i)
+		}
 		httpServer := HttpServer{Port: HTTP_PORT}
 		httpServer.Start()
+	} else {
+		getSearchTerms()
 	}
 
 	WCPool.Close()

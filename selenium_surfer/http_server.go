@@ -26,7 +26,8 @@ func (self HttpServer) Start() {
 
 	err := http.ListenAndServe(bind, router)
 	if err != nil {
-		panic(err)
+		Ligneous.Error(err)
+		shutDown()
 	}
 
 }
