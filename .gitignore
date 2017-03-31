@@ -28,6 +28,8 @@ _testmain.go
 *.zip
 *.tar.gz
 *.tar.bz2
+*.json.gz
+*.json
 src
 pkg
 bin

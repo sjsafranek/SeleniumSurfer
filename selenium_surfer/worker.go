@@ -39,7 +39,7 @@ func NewWebClient(channel chan string, workwg *sync.WaitGroup) WebClientWorker {
 
 // Run starts WebClient worker
 func (self WebClientWorker) Run() {
-	Ligneous.Info("[WebClient] Starting google searches")
+	Ligneous.Info("[WebClient] Processing jobs")
 	self.workwg.Add(1)
 	go self.run()
 }

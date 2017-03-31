@@ -18,9 +18,10 @@ build: fmt get-deps test
 	@GOPATH=${GPATH} go build -o ${PROJECT_NAME} selenium_surfer/*.go
 
 get-deps:
-	@GOPATH=${GPATH} go get github.com/tebeka/selenium
-	@GOPATH=${GPATH} go get github.com/cihub/seelog
-	@GOPATH=${GPATH} go get github.com/gorilla/mux
+	@GOPATH=${GPATH} go get -v github.com/tebeka/selenium
+	@GOPATH=${GPATH} go get -v github.com/cihub/seelog
+	@GOPATH=${GPATH} go get -v github.com/gorilla/mux
+	@GOPATH=${GPATH} go get -v github.com/schollz/jsonstore
 
 fmt:
 	@GOPATH=${GPATH} gofmt -s -w selenium_surfer/*.go
