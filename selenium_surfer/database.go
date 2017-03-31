@@ -1,5 +1,6 @@
 package main
 
+//import "os"
 import "fmt"
 import "github.com/schollz/jsonstore"
 
@@ -10,32 +11,54 @@ const (
 var (
 	DatabaseFile string = DEFAULT_DATABASE_FILE
 	Database     jsonstore.JSONStore
+	Tasks        Jobs
 )
 
-type Job struct {
-	Message string
+type Jobs struct {
+	Jobs map[string]int
+}
+
+func (self Jobs) Add(message string, minutes int) {
+	Ligneous.Debug("[Database] Adding task ", message, " ", minutes)
+	self.Jobs[message] = minutes
+}
+
+func SyncDatabase() {
+	Ligneous.Info("[Database] Sync database")
+
+	Database.Set("tasks", &Tasks)
+
+	// Saving will automatically gzip if .gz is provided
+	if err := jsonstore.Save(&Database, DatabaseFile); err != nil {
+		panic(err)
+	}
 }
 
 func init() {
+
+	Tasks = Jobs{make(map[string]int)}
+
 	//Database = new(jsonstore.JSONStore)
 	Database, err := jsonstore.Open(DatabaseFile)
 	if nil != err {
 		Database = new(jsonstore.JSONStore)
 	}
-	Database.Set("job1", Job{"This is a job"})
 
-	// Saving will automatically gzip if .gz is provided
-	if err = jsonstore.Save(Database, DatabaseFile); err != nil {
-		panic(err)
-	}
-
-	var job Job
-	err = Database.Get("job1", &job)
+	err = Database.Get("tasks", &Tasks)
 	if nil != err {
-		panic(err)
+		// Saving will automatically gzip if .gz is provided
+		if err = jsonstore.Save(Database, DatabaseFile); err != nil {
+			panic(err)
+		}
 	}
 
-	fmt.Printf("%v\n", job)
+	fmt.Printf("%v\n", Tasks)
 
+	//	Tasks.Add(fmt.Sprintf("%v", time.Now()), 1)
+
+	//	os.Exit(0)
+
+	//data := Database.GetAll("*")
+	//fmt.Printf("%v\n", data)
 	//Ligneous.Info("job")
 }

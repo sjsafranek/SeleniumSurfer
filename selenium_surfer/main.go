@@ -33,6 +33,7 @@ func init() {
 			Ligneous.Info("Gracefully shutting down")
 			Ligneous.Info("Waiting for WebClients to shutdown...")
 			WCPool.Shutdown()
+			SyncDatabase()
 			os.Exit(0)
 		}
 	}()
@@ -61,6 +62,7 @@ func getSearchTerms() {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
+		Tasks.Add(scanner.Text(), 120)
 		WCPool.Add(scanner.Text())
 	}
 
@@ -103,4 +105,6 @@ func main() {
 
 	// wait for work groups to complete
 	workwg.Wait()
+
+	SyncDatabase()
 }
