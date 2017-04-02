@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/url"
 	"strings"
 	"sync"
@@ -35,17 +36,13 @@ func NewWebClient(channel chan string, workwg *sync.WaitGroup) WebClientWorker {
 		panic(err)
 	}
 
-	//worker_uuid, err := NewUUID4()
-	//if err != nil {
-	//	panic(err)
-	//}
 	worker_uuid := NewWorkerKey(12)
 	return WebClientWorker{Queue: channel, workwg: workwg, WebDriver: wd, Uuid: worker_uuid}
 }
 
 // Run starts WebClient worker
 func (self WebClientWorker) Run() {
-	Ligneous.Info("[WebClient] Processing jobs")
+	Ligneous.Info(self.formatLogInfo("Processing jobs"))
 	self.workwg.Add(1)
 	go self.run()
 }
@@ -69,7 +66,7 @@ func (self WebClientWorker) run() {
 }
 
 func (self WebClientWorker) VisitWebPage(url_string string) {
-	Ligneous.Debug(`[WebClient] `, self.WebDriver.SessionID(), ` Visit web page "`+url_string+`"`)
+	Ligneous.Debug(self.formatLogInfo(`Visit web page "` + url_string + `"`))
 
 	// Get google.com
 	self.WebDriver.Get(url_string)
@@ -79,7 +76,7 @@ func (self WebClientWorker) VisitWebPage(url_string string) {
 }
 
 func (self WebClientWorker) GoogleSearch(search_term string) {
-	Ligneous.Debug(`[WebClient] `, self.WebDriver.SessionID(), ` Google Search "`+search_term+`"`)
+	Ligneous.Debug(self.formatLogInfo(`Google Search "` + search_term + `"`))
 
 	// NewSession() (string, error)
 
@@ -98,7 +95,7 @@ func (self WebClientWorker) GoogleSearch(search_term string) {
 			self.Queue <- search_term
 			self.restoreSession()
 		} else {
-			Ligneous.Error("[WebClient] ", self.WebDriver.SessionID(), " ", err)
+			Ligneous.Error(self.formatLogInfo(err.Error()))
 		}
 	} else {
 		elem.Clear()
@@ -112,16 +109,19 @@ func (self WebClientWorker) GoogleSearch(search_term string) {
 func (self WebClientWorker) restoreSession() {
 	_, err := self.WebDriver.NewSession()
 	if nil != err {
-		Ligneous.Error("[WebClient] ", self.WebDriver.SessionID(), " ", err)
+		Ligneous.Error(self.formatLogInfo(err.Error()))
 	}
-	//Ligneous.Info("[WebClient] ", self.WebDriver.SessionID(), " ", session)
+}
+
+func (self WebClientWorker) formatLogInfo(message string) string {
+	return fmt.Sprintf("[WebClient][%v][%v] %v", self.Uuid, self.WebDriver.SessionID(), message)
 }
 
 func (self WebClientWorker) Shutdown() {
-	Ligneous.Info("[WebClient] ", self.WebDriver.SessionID(), " Shutting down")
+	Ligneous.Info(self.formatLogInfo("Shutting down"))
 	err := self.WebDriver.Quit()
 	if nil != err {
-		Ligneous.Error("[WebClient] ", self.WebDriver.SessionID(), " ", err)
+		Ligneous.Error(self.formatLogInfo(err.Error()))
 	}
 	self.workwg.Done()
 }
