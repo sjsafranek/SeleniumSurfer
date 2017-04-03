@@ -46,7 +46,7 @@ func PingHandler(w http.ResponseWriter, r *http.Request) {
 
 // NewTaskHandler
 func NewTaskHandler(w http.ResponseWriter, r *http.Request) {
-	// curl -H "Content-Type: application/json" -X POST -d '{"search":"paul ryan is gay","minutes":3}' http://localhost:7777/api/v1/task
+	// curl -H "Content-Type: application/json" -X POST -d '{"search":"paul ryan is gay","probability":3}' http://localhost:7777/api/v1/task
 
 	// Get request body
 	body, err := ioutil.ReadAll(r.Body)
@@ -68,7 +68,7 @@ func NewTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	DB.Add(task.Search, task.Minutes)
+	DB.Add(task.Search, task.Probability)
 	WCPool.Add(task.Search)
 
 	js, err := MarshalJsonFromString(w, r, `{"status":"ok"}`)

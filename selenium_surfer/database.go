@@ -13,12 +13,12 @@ var (
 
 type Database struct {
 	Store *jsonstore.JSONStore
-	Data  map[string]int
+	Data  map[string]float32
 }
 
-func (self Database) Add(message string, minutes int) {
-	Ligneous.Debug("[Database] Add item ", message, " ", minutes)
-	self.Data[message] = minutes
+func (self Database) Add(message string, probability float32) {
+	Ligneous.Debug("[Database] Add item ", message, " ", probability)
+	self.Data[message] = probability
 	self.Sync()
 }
 
@@ -39,7 +39,7 @@ func InitDatabase() {
 		store = new(jsonstore.JSONStore)
 	}
 
-	DB = Database{Store: store, Data: make(map[string]int)}
+	DB = Database{Store: store, Data: make(map[string]float32)}
 
 	err = DB.Store.Get("tasks", &DB.Data)
 	if nil != err {

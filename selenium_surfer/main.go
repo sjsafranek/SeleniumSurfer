@@ -63,7 +63,7 @@ func getSearchTerms() {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		//DB.Add(scanner.Text(), 120)
+		DB.Add(scanner.Text(), 0.25)
 		WCPool.Add(scanner.Text())
 	}
 

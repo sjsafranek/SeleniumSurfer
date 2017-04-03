@@ -21,7 +21,7 @@ type WebClientWorkerPool struct {
 }
 
 type Task struct {
-	Url     string `json:"url"`
-	Search  string `json:"search"`
-	Minutes int    `json:"minutes"`
+	Url         string  `json:"url"`
+	Search      string  `json:"search"`
+	Probability float32 `json:"probability"`
 }
